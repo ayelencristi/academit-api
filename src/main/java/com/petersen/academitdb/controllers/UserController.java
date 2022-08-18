@@ -1,6 +1,10 @@
 package com.petersen.academitdb.controllers;
 
-import com.petersen.academitdb.dominio.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.petersen.academitdb.dto.UserDTO;
+import com.petersen.academitdb.exceptions.UserExistExepcetion;
+import com.petersen.academitdb.exceptions.UserNotExistException;
+import com.petersen.academitdb.model.User;
 import com.petersen.academitdb.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,26 +70,58 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<User> add(@RequestBody User user){
-        return new ResponseEntity<>(this.servicio.alta(user), HttpStatus.CREATED);
+    public ResponseEntity<?> add(@RequestBody User user){
+        try {
+            return new ResponseEntity<>(this.servicio.alta(user), HttpStatus.CREATED);
+        } catch (UserExistExepcetion e){
+            return ResponseEntity.badRequest().body("Ya existe el usuario");
+        } catch (Exception e){
+            return ResponseEntity.internalServerError().body("Error interno desconocido");
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id,
-                                    @RequestBody User user) {
-        Optional<User> userOptional = this.servicio.getById(id);
+//    @PostMapping
+//    public ResponseEntity<UserDTO> add(@RequestBody UserDTO userDTO) {
+//
+//
+//        ObjectMapper om = new ObjectMapper();
+//        User user = om.convertValue(userDTO, User.class);
+//
+//        User userDB = this.servicio.alta(user);
+//
+//        UserDTO finalUser = om.convertValue(userDB, UserDTO.class);
+//        return ResponseEntity.ok(finalUser);
+//    }
 
-        if(!userOptional.isPresent()) {
-            return ResponseEntity
-                    .notFound().build();
-        } else {
-            ResponseEntity.ok();
-            User userUpdate = userOptional.get();
-            userUpdate.setName(user.getName());
-            userUpdate.setLastname(user.getLastname());
-            userUpdate.setPassword(user.getPassword());
-            return new ResponseEntity<>(this.servicio.alta(userUpdate), HttpStatus.OK);
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
+                                    @RequestBody UserDTO userDTO) {
+
+        try {
+            ObjectMapper om = new ObjectMapper();
+            User user = om.convertValue(userDTO, User.class);
+            User userUpdate = this.servicio.updateUser(id, user);
+            UserDTO dto = om.convertValue(userUpdate, UserDTO.class);
+            return ResponseEntity.ok(dto);
+        } catch (UserNotExistException e){
+            return ResponseEntity.notFound().build();
         }
+
+
+
+//        Optional<User> userOptional = this.servicio.getById(id);
+//
+//        if(!userOptional.isPresent()) {
+//            return ResponseEntity
+//                    .notFound().build();
+//        } else {
+//            ResponseEntity.ok();
+//            User userUpdate = userOptional.get();
+//            userUpdate.setName(user.getName());
+//            userUpdate.setLastname(user.getLastname());
+//            userUpdate.setPassword(user.getPassword());
+//            return new ResponseEntity<>(this.servicio.alta(userUpdate), HttpStatus.OK);
+//        }
     }
 
 }
