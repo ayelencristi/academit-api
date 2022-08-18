@@ -1,6 +1,6 @@
 package com.petersen.academitdb.repositories;
 
-import com.petersen.academitdb.dominio.User;
+import com.petersen.academitdb.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 

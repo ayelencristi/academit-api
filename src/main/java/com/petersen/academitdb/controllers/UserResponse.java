@@ -1,6 +1,6 @@
 package com.petersen.academitdb.controllers;
 
-import com.petersen.academitdb.dominio.User;
+import com.petersen.academitdb.model.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
